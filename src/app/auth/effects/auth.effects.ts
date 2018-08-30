@@ -1,3 +1,4 @@
+import { CheckoutService } from './../../core/services/checkout.service';
 import { filter, switchMap, map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
@@ -5,14 +6,15 @@ import { Actions, Effect } from '@ngrx/effects';
 import { Action } from '@ngrx/store';
 import { AuthService } from '../../core/services/auth.service';
 import { AuthActions } from '../actions/auth.actions';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 @Injectable()
 export class AuthenticationEffects {
   constructor(
     private actions$: Actions,
     private authService: AuthService,
-    private authActions: AuthActions
+    private authActions: AuthActions,
+    private checkoutService: CheckoutService
   ) {}
 
   // tslint:disable-next-line:member-ordering
@@ -21,13 +23,17 @@ export class AuthenticationEffects {
     .ofType(AuthActions.AUTHORIZE)
     .pipe(
       switchMap(() => this.authService.authorized()),
+      switchMap(data => {
+        this.checkoutService.fetchCurrentOrder().subscribe();
+        return of(data);
+      }),
       filter(data => data.status !== 'unauthorized'),
       map(() => this.authActions.loginSuccess())
     );
 
   // tslint:disable-next-line:member-ordering
   @Effect()
-  OAuthLogin: Observable<Action> = this.actions$
+  OAuthLogin: Observable < Action > = this.actions$
     .ofType(AuthActions.O_AUTH_LOGIN)
     .pipe(
       switchMap((action: any) => {

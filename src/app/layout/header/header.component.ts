@@ -87,7 +87,6 @@ export class HeaderComponent implements OnInit {
   }
   ngOnInit() {
     this.store.dispatch(this.authActions.authorize());
-    this.store.dispatch(this.authActions.login());
     this.isAuthenticated = this.store.select(getAuthStatus);
     this.totalCartItems = this.store.select(getTotalCartItems);
     if (isPlatformBrowser(this.platformId)) {

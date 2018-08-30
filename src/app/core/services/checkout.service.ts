@@ -82,17 +82,15 @@ export class CheckoutService {
           return this.store.dispatch(
             this.actions.fetchCurrentOrderSuccess(order)
           );
-        }
-      }),
-      switchMap(order => {
-        if (!order) {
+        } else {
           if (this.getOrderToken()) {
             const s_order = JSON.parse(localStorage.getItem('order'));
             return this
               .getOrder(s_order.order_number)
-              .pipe(tap(_order => this.store.dispatch(this.actions.fetchCurrentOrderSuccess(_order))));
+              .pipe(tap(_order => this.store.dispatch(this.actions.fetchCurrentOrderSuccess(_order))))
+              .subscribe();
           } else {
-            return this.createEmptyOrder();
+            return this.createEmptyOrder().subscribe();
           }
         }
       })
